@@ -29,9 +29,11 @@ state = getState(data, 0, window_size + 1)
 total_profit = 0
 agent.inventory = []
 
+print(len(data))
 plt.axis([0, len(data)-1, min(data), max(data)])
 
-
+firstbuy = True
+firstsell = True
 for t in range(l):
 	action = agent.act(state)
 
@@ -42,7 +44,11 @@ for t in range(l):
 	if action == 1: # buy
 		agent.inventory.append(data[t])
 		print ("Buy: " + formatPrice(data[t]))
-		plt.scatter(t, data[t],s=20,c='b',marker='.')
+		if firstbuy == True:
+			plt.scatter(t, data[t],s=20,c='b',marker='.', linewidths=2, label="buy")
+			firstbuy = False
+		else:
+			plt.scatter(t, data[t],s=20,c='b',marker='.', linewidths=2)
 		plt.pause(0.01)
 
 	elif action == 2 and len(agent.inventory) > 0: # sell
@@ -50,7 +56,11 @@ for t in range(l):
 		reward = max(data[t] - bought_price, 0)
 		total_profit += data[t] - bought_price
 		print ("Sell: " + formatPrice(data[t]) + " | Profit: " + formatPrice(data[t] - bought_price))
-		plt.scatter(t, data[t],s=20,c='r',marker='.')
+		if firstsell == True:
+			plt.scatter(t, data[t],s=20,c='r',marker='.', linewidths=2, label="sell")
+			firstsell = False
+		else:
+			plt.scatter(t, data[t],s=20,c='r',marker='.', linewidths=2)
 		plt.pause(0.01)
 
 	done = True if t == l - 1 else False
@@ -61,5 +71,9 @@ for t in range(l):
 		print ("--------------------------------")
 		print (stock_name + " Total Profit: " + formatPrice(total_profit))
 		print ("--------------------------------")
-		plt.plot(range(l),data[:-1])
-		plt.savefig('test_res.png')
+		plt.plot(range(l),data[:-1], c='k', linewidth=1.0)
+		plt.xlabel("data_idx")
+		plt.ylabel("Reward")
+		plt.title(f'{stock_name}, Total Reward = {formatPrice(total_profit)}')
+		plt.legend()
+		plt.savefig(f'{stock_name}_res.pdf')
